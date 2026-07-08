@@ -68,12 +68,33 @@ exports.updateLocation = async (req, res) => {
             ]
         );
 
+        // Cari bus milik driver
+        const busResult = await pool.query(
+            `
+            SELECT id
+            FROM buses
+            WHERE driver_id=$1
+            `,
+            [driver_id]
+        );
+
+        if (global.io && busResult.rows.length > 0) {
+            global.io.emit(
+                "locationUpdate",
+                {
+                    busId: busResult.rows[0].id,
+                    latitude,
+                    longitude,
+                    speed,
+                    heading,
+                    accuracy,
+                },
+            );
+        }
+
         res.json({
-
             success:true,
-
             message:"Lokasi berhasil diperbarui"
-
         });
 
     } catch(err){
@@ -81,15 +102,10 @@ exports.updateLocation = async (req, res) => {
         console.log(err);
 
         res.status(500).json({
-
             success:false,
-
             message:err.message
-
         });
-
     }
-
 };
 
 // =====================================
@@ -174,15 +190,3 @@ exports.getLocationHistory = async(req,res)=>{
         });
     }
 };
-
-global.io.emit(
-    "locationUpdate",
-    {
-        busId,
-        latitude,
-        longitude,
-        speed,
-        heading,
-        accuracy,
-    },
-);
