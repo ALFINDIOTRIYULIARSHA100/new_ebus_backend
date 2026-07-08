@@ -78,11 +78,11 @@ exports.getDriverTracking = async (req, res) => {
       LEFT JOIN LATERAL (
 
           SELECT *
-          FROM bus_locations
+          FROM bus_locations bl
 
-          WHERE bus_id = b.id
+          WHERE bl.bus_id = b.id
 
-          ORDER BY created_at DESC
+          ORDER BY bl.created_at DESC
 
           LIMIT 1
 
