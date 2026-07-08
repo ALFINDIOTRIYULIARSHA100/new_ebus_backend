@@ -252,7 +252,150 @@ exports.getDriverTracking = async (req, res) => {
 
       message: err.message
     });
-
   }
+};
+
+/*
+========================================
+START TRACKING
+========================================
+*/
+
+exports.startTracking = async (req, res) => {
+
+    try {
+
+        const { driver_id } = req.body;
+
+        await pool.query(
+            `
+            UPDATE buses
+            SET is_tracking = true
+            WHERE driver_id = $1
+            `,
+            [driver_id]
+        );
+
+        res.json({
+            success: true,
+            message: "Tracking dimulai",
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+
+    }
+
+};
+
+/*
+========================================
+STOP TRACKING
+========================================
+*/
+
+exports.stopTracking = async (req, res) => {
+
+    try {
+
+        const { driver_id } = req.body;
+
+        await pool.query(
+            `
+            UPDATE buses
+            SET is_tracking = false
+            WHERE driver_id = $1
+            `,
+            [driver_id]
+        );
+
+        res.json({
+            success: true,
+            message: "Tracking dihentikan",
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+
+    }
+
+};
+
+/*
+========================================
+UPDATE LOCATION
+========================================
+*/
+
+exports.updateLocation = async (req, res) => {
+
+    try {
+
+        const {
+            driver_id,
+            latitude,
+            longitude,
+            speed,
+            heading,
+            accuracy,
+        } = req.body;
+
+        await pool.query(
+            `
+            INSERT INTO bus_locations
+            (
+                bus_id,
+                latitude,
+                longitude,
+                speed,
+                heading,
+                accuracy,
+                created_at
+            )
+
+            SELECT
+                id,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                NOW()
+
+            FROM buses
+
+            WHERE driver_id = $1
+            `,
+            [
+                driver_id,
+                latitude,
+                longitude,
+                speed,
+                heading,
+                accuracy,
+            ]
+        );
+
+        res.json({
+            success: true,
+            message: "Lokasi berhasil diperbarui",
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+
+    }
 
 };
