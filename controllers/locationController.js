@@ -147,46 +147,42 @@ exports.getBusLocation = async(req,res)=>{
 // Histori Lokasi
 // =====================================
 exports.getLocationHistory = async(req,res)=>{
-
     try{
-
         const {driverId}=req.params;
 
         const result=await pool.query(
-
             `
             SELECT *
-
             FROM locations
-
             WHERE driver_id=$1
-
             ORDER BY created_at DESC
-
             LIMIT 100
             `,
             [driverId]
-
         );
 
         res.json({
-
             success:true,
-
             data:result.rows
-
         });
 
     }catch(err){
 
         res.status(500).json({
-
             success:false,
-
             message:err.message
-
         });
-
     }
-
 };
+
+global.io.emit(
+    "locationUpdate",
+    {
+        busId,
+        latitude,
+        longitude,
+        speed,
+        heading,
+        accuracy,
+    },
+);
