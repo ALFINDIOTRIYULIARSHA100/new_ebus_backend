@@ -67,14 +67,13 @@ async (req,res)=>{
       await pool.query(
         `
         UPDATE schedules
-
         SET status='Selesai'
-
         WHERE bus_id=$1
         `,
         [bus_id]
       );
 
+    const result = 
       await pool.query(
         `
         INSERT INTO schedules
@@ -131,34 +130,37 @@ async(req,res)=>{
     const {id}=req.params;
 
     const {
-      tanggal_berangkat,
-      jam_berangkat,
-      harga_tiket
+        bus_id,
+        route_id,
+        tanggal_berangkat,
+        jam_berangkat,
+        harga_tiket
     } = req.body;
 
-    const result =
-      await pool.query(
-        `
-        UPDATE schedules
+    const result = await pool.query(
+      `
+      UPDATE schedules
 
-        SET
-        bus_id = $1,
-        route_id = $2,
-        tanggal_berangkat = $3,
-        jam_berangkat = $4,
-        harga_tiket = $5
+      SET
+      bus_id=$1,
+      route_id=$2,
+      tanggal_berangkat=$3,
+      jam_berangkat=$4,
+      harga_tiket=$5
 
-        WHERE id = $6
+      WHERE id=$6
 
-        RETURNING *
-        `,
-        [
+      RETURNING *
+      `,
+      [
+          bus_id,
+          route_id,
           tanggal_berangkat,
           jam_berangkat,
           harga_tiket,
           id
-        ]
-      );
+      ]
+    );
 
     res.json({
       success:true,
