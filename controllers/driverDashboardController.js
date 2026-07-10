@@ -58,13 +58,12 @@ exports.getDriverDashboard = async (req, res) => {
 
       LEFT JOIN schedules s
       ON s.bus_id=b.id
+      AND s.status='Aktif'
 
       LEFT JOIN routes r
       ON r.id=s.route_id
 
       WHERE u.id=$1
-
-      ORDER BY s.id DESC
 
       LIMIT 1
       `,

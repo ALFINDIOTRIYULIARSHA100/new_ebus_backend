@@ -66,6 +66,17 @@ async (req,res)=>{
     const result =
       await pool.query(
         `
+        UPDATE schedules
+
+        SET status='Selesai'
+
+        WHERE bus_id=$1
+        `,
+        [bus_id]
+      );
+
+      await pool.query(
+        `
         INSERT INTO schedules
         (
           company_id,
@@ -73,10 +84,14 @@ async (req,res)=>{
           route_id,
           tanggal_berangkat,
           jam_berangkat,
-          harga_tiket
+          harga_tiket,
+          status
         )
 
-        VALUES($1,$2,$3,$4,$5,$6)
+        VALUES
+        (
+          $1,$2,$3,$4,$5,$6,$7
+        )
 
         RETURNING *
         `,
@@ -86,7 +101,8 @@ async (req,res)=>{
           route_id,
           tanggal_berangkat,
           jam_berangkat,
-          harga_tiket
+          harga_tiket,
+          "Aktif"
         ]
       );
 
@@ -126,11 +142,13 @@ async(req,res)=>{
         UPDATE schedules
 
         SET
-          tanggal_berangkat=$1,
-          jam_berangkat=$2,
-          harga_tiket=$3
+        bus_id = $1,
+        route_id = $2,
+        tanggal_berangkat = $3,
+        jam_berangkat = $4,
+        harga_tiket = $5
 
-        WHERE id=$4
+        WHERE id = $6
 
         RETURNING *
         `,

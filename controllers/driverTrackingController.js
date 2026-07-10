@@ -81,7 +81,11 @@ exports.getDriverTracking = async (req, res) => {
       LEFT JOIN terminals t2
       ON t2.id = r.end_terminal_id
 
-      WHERE s.bus_id = $1
+      WHERE
+
+      s.bus_id=$1
+
+      AND s.status='Aktif'
 
       LIMIT 1
       `,
