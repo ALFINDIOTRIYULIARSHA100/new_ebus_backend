@@ -198,9 +198,7 @@ exports.getDriverTracking = async (req, res) => {
 
                 nama: route.nama_rute,
 
-                path: route.path == null
-                    ? []
-                    : JSON.parse(route.path),
+                path: route.path ?? [],
 
                 terminal_awal: {
 
@@ -347,6 +345,16 @@ exports.updateLocation = async (req, res) => {
             heading,
             accuracy,
         } = req.body;
+
+        console.log("========== GPS MASUK ==========");
+        console.log({
+            driver_id,
+            latitude,
+            longitude,
+            speed,
+            heading,
+            accuracy,
+        });
 
         await pool.query(
             `
