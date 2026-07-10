@@ -63,15 +63,14 @@ async (req,res)=>{
         harga_tiket
     );
 
-    const result =
-      await pool.query(
-        `
-        UPDATE schedules
-        SET status='Selesai'
-        WHERE bus_id=$1
-        `,
-        [bus_id]
-      );
+    await pool.query(
+      `
+      UPDATE schedules
+      SET status='Selesai'
+      WHERE bus_id=$1
+      `,
+    [bus_id]
+    );
 
     const result = 
       await pool.query(
