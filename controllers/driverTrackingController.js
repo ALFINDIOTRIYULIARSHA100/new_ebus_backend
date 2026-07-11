@@ -21,6 +21,11 @@ exports.getDriverTracking = async (req, res) => {
       b.status,
       b.is_tracking,
 
+      b.current_zone,
+      b.current_zone_status,
+      b.route_index,
+      b.progress,
+
       d.id AS driver_id,
       d.driver_name,
 
@@ -174,16 +179,25 @@ exports.getDriverTracking = async (req, res) => {
 
         bus: {
 
-          id: bus.id,
+        id: bus.id,
 
-          nomor_bus: bus.nomor_bus,
+        nomor_bus: bus.nomor_bus,
 
-          plat_nomor: bus.plat_nomor,
+        plat_nomor: bus.plat_nomor,
 
-          status: bus.status,
+        status: bus.status,
 
-          tracking: bus.is_tracking
-        },
+        tracking: bus.is_tracking,
+
+        current_zone: bus.current_zone,
+
+        current_zone_status: bus.current_zone_status,
+
+        route_index: bus.route_index,
+
+        progress: bus.progress
+
+      },
 
         driver: {
 
@@ -255,159 +269,4 @@ exports.getDriverTracking = async (req, res) => {
       message: err.message
     });
   }
-};
-
-/*
-========================================
-START TRACKING
-========================================
-*/
-
-exports.startTracking = async (req, res) => {
-
-    try {
-
-        const { driver_id } = req.body;
-
-        await pool.query(
-            `
-            UPDATE buses
-            SET is_tracking = true
-            WHERE driver_id = $1
-            `,
-            [driver_id]
-        );
-
-        res.json({
-            success: true,
-            message: "Tracking dimulai",
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: err.message,
-        });
-
-    }
-
-};
-
-/*
-========================================
-STOP TRACKING
-========================================
-*/
-
-exports.stopTracking = async (req, res) => {
-
-    try {
-
-        const { driver_id } = req.body;
-
-        await pool.query(
-            `
-            UPDATE buses
-            SET is_tracking = false
-            WHERE driver_id = $1
-            `,
-            [driver_id]
-        );
-
-        res.json({
-            success: true,
-            message: "Tracking dihentikan",
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: err.message,
-        });
-
-    }
-
-};
-
-/*
-========================================
-UPDATE LOCATION
-========================================
-*/
-
-exports.updateLocation = async (req, res) => {
-
-    try {
-
-        const {
-            driver_id,
-            latitude,
-            longitude,
-            speed,
-            heading,
-            accuracy,
-        } = req.body;
-
-        console.log("========== GPS MASUK ==========");
-        console.log({
-            driver_id,
-            latitude,
-            longitude,
-            speed,
-            heading,
-            accuracy,
-        });
-
-        await pool.query(
-            `
-            INSERT INTO bus_locations
-            (
-                bus_id,
-                latitude,
-                longitude,
-                speed,
-                heading,
-                accuracy,
-                created_at
-            )
-
-            SELECT
-                id,
-                $2,
-                $3,
-                $4,
-                $5,
-                $6,
-                NOW()
-
-            FROM buses
-
-            WHERE driver_id = $1
-            `,
-            [
-                driver_id,
-                latitude,
-                longitude,
-                speed,
-                heading,
-                accuracy,
-            ]
-        );
-
-        res.json({
-            success: true,
-            message: "Lokasi berhasil diperbarui",
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: err.message,
-        });
-
-    }
-
 };
