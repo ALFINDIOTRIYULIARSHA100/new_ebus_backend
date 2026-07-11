@@ -54,7 +54,7 @@ app.use("/api/companies",companyRoutes);
 app.use("/api/reports",reportRoutes);
 app.use("/api/driver/dashboard",driverDashboardRoutes);
 app.use("/api/location",locationRoutes);
-app.use("/api/driver/tracking",driverTrackingRoutes);
+app.use("/api/driver",driverTrackingRoutes);
 
 app.get("/", async (req, res) => {
   try {
