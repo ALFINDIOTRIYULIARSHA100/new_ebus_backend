@@ -2,7 +2,7 @@ const pool = require("../config/database");
 const geolib = require("geolib");
 const routeIndexService = require("./routeIndexService");
 const progressService = require("./progressService");
-const firebaseService = require("./firebaseService");
+// const firebaseService = require("./firebaseService");
 
 /*
 ========================================
@@ -259,15 +259,15 @@ exports.checkBusGeofence = async (
             tokenResult.rows[0].fcm_token
         ) {
 
-            await firebaseService.sendNotification(
+            // await firebaseService.sendNotification(
 
-                tokenResult.rows[0].fcm_token,
+            //     tokenResult.rows[0].fcm_token,
 
-                "Geofence",
+            //     "Geofence",
 
-                `Bus memasuki ${zone.nama}`
+            //     `Bus memasuki ${zone.nama}`
 
-            );
+            // );
 
         }
         return;
