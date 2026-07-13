@@ -1,4 +1,5 @@
 const pool = require("../config/database");
+const geofenceService = require("../services/geofenceService");
 
 exports.getDriverTracking = async (req, res) => {
   try {
@@ -251,7 +252,15 @@ exports.getDriverTracking = async (req, res) => {
 
           accuracy: gps.accuracy,
 
-          updated_at: gps.created_at
+          updated_at: gps.created_at,
+
+          current_zone: bus.current_zone,
+
+          current_zone_status: bus.current_zone_status,
+
+          progress: bus.progress,
+
+          route_index: bus.route_index
         }
 
       }
@@ -269,4 +278,365 @@ exports.getDriverTracking = async (req, res) => {
       message: err.message
     });
   }
+};
+
+exports.startTracking = async (req, res) => {
+
+    try {
+
+        const { driver_id } = req.body;
+
+        const busResult =
+        await pool.query(
+            `
+            SELECT id
+            FROM buses
+            WHERE driver_id = $1
+            LIMIT 1
+            `,
+            [driver_id]
+        );
+
+        if(busResult.rows.length == 0){
+
+            return res.status(404).json({
+
+                success:false,
+
+                message:"Bus tidak ditemukan"
+
+            });
+
+        }
+
+        const busId =
+        busResult.rows[0].id;
+
+        await pool.query(
+            `
+            UPDATE buses
+
+            SET
+
+            is_tracking = true
+
+            WHERE id = $1
+            `,
+            [busId]
+        );
+
+        res.json({
+
+            success:true,
+
+            message:"Tracking dimulai"
+
+        });
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:err.message
+
+        });
+
+    }
+
+};
+
+exports.stopTracking = async (req,res)=>{
+
+    try{
+
+        const {driver_id}=req.body;
+
+        const busResult=
+        await pool.query(
+
+            `
+            SELECT id
+
+            FROM buses
+
+            WHERE driver_id=$1
+
+            LIMIT 1
+            `,
+
+            [driver_id]
+
+        );
+
+        if(busResult.rows.length==0){
+
+            return res.status(404).json({
+
+                success:false,
+
+                message:"Bus tidak ditemukan"
+
+            });
+
+        }
+
+        const busId=
+        busResult.rows[0].id;
+
+        await pool.query(
+
+            `
+            UPDATE buses
+
+            SET
+
+            is_tracking=false
+
+            WHERE id=$1
+            `,
+
+            [busId]
+
+        );
+
+        res.json({
+
+            success:true,
+
+            message:"Tracking dihentikan"
+
+        });
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:err.message
+
+        });
+
+    }
+
+};
+
+exports.updateLocation = async (req,res)=>{
+
+    try{
+
+        const {
+
+            driver_id,
+
+            latitude,
+
+            longitude,
+
+            speed,
+
+            heading,
+
+            accuracy
+
+        } = req.body;
+
+        /*
+        ==========================
+        BUS
+        ==========================
+        */
+
+        const busResult =
+        await pool.query(
+
+            `
+            SELECT id
+
+            FROM buses
+
+            WHERE driver_id=$1
+
+            LIMIT 1
+            `,
+
+            [driver_id]
+
+        );
+
+        if(busResult.rows.length==0){
+
+            return res.status(404).json({
+
+                success:false,
+
+                message:"Bus tidak ditemukan"
+
+            });
+
+        }
+
+        const busId=
+        busResult.rows[0].id;
+
+        /*
+        ==========================
+        UPDATE GPS
+        ==========================
+        */
+
+        const existing =
+        await pool.query(
+
+            `
+            SELECT id
+
+            FROM bus_locations
+
+            WHERE bus_id=$1
+            `,
+
+            [busId]
+
+        );
+
+        if(existing.rows.length>0){
+
+            await pool.query(
+
+                `
+                UPDATE bus_locations
+
+                SET
+
+                latitude=$1,
+
+                longitude=$2,
+
+                speed=$3,
+
+                heading=$4,
+
+                accuracy=$5,
+
+                updated_at=NOW()
+
+                WHERE bus_id=$6
+                `,
+
+                [
+
+                    latitude,
+
+                    longitude,
+
+                    speed,
+
+                    heading,
+
+                    accuracy,
+
+                    busId
+
+                ]
+
+            );
+
+        }
+
+        else{
+
+            await pool.query(
+
+                `
+                INSERT INTO bus_locations
+                (
+
+                    bus_id,
+
+                    latitude,
+
+                    longitude,
+
+                    speed,
+
+                    heading,
+
+                    accuracy
+
+                )
+
+                VALUES($1,$2,$3,$4,$5,$6)
+                `,
+
+                [
+
+                    busId,
+
+                    latitude,
+
+                    longitude,
+
+                    speed,
+
+                    heading,
+
+                    accuracy
+
+                ]
+
+            );
+
+        }
+
+        /*
+        ==========================
+        HITUNG SEMUA
+        ==========================
+        */
+
+        await geofenceService.checkBusGeofence(
+
+            busId,
+
+            Number(latitude),
+
+            Number(longitude)
+
+        );
+
+        res.json({
+
+            success:true,
+
+            message:"Lokasi berhasil diperbarui"
+
+        });
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:err.message
+
+        });
+
+    }
+
 };
