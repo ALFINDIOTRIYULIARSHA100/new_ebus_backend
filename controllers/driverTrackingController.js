@@ -4,33 +4,34 @@ const geofenceService = require("../services/geofenceService");
 exports.getDriverTracking = async (req, res) => {
   try {
 
-    const { busId } = req.params;
+    const busId = parseInt(req.params.busId, 10);
 
-    /*
-    ==========================
-    BUS + DRIVER + COMPANY
-    ==========================
-    */
+    if (isNaN(busId)) {
+      return res.status(400).json({
+        success: false,
+        message: "busId harus berupa angka"
+      });
+    }
 
     const busResult = await pool.query(
       `
       SELECT
 
-      b.id,
-      b.nomor_bus,
-      b.plat_nomor,
-      b.status,
-      b.is_tracking,
+        b.id,
+        b.nomor_bus,
+        b.plat_nomor,
+        b.status,
+        b.is_tracking,
 
-      b.current_zone,
-      b.current_zone_status,
-      b.route_index,
-      b.progress,
+        b.current_zone,
+        b.current_zone_status,
+        b.route_index,
+        b.progress,
 
-      d.id AS driver_id,
-      d.driver_name,
+        d.id AS driver_id,
+        d.driver_name,
 
-      c.company_name
+        c.company_name
 
       FROM buses b
 
@@ -40,7 +41,7 @@ exports.getDriverTracking = async (req, res) => {
       LEFT JOIN companies c
       ON c.id = b.company_id
 
-      WHERE b.id = 'start'
+      WHERE b.id = $1
       `,
       [busId]
     );
