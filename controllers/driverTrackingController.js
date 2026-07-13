@@ -40,7 +40,7 @@ exports.getDriverTracking = async (req, res) => {
       LEFT JOIN companies c
       ON c.id = b.company_id
 
-      WHERE b.id = $1
+      WHERE b.id = 'start'
       `,
       [busId]
     );
