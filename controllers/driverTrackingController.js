@@ -512,45 +512,26 @@ exports.updateLocation = async (req,res)=>{
         );
 
         if(existing.rows.length>0){
-
             await pool.query(
-
-                `
+              `
                 UPDATE bus_locations
-
                 SET
-
-                latitude=$1,
-
-                longitude=$2,
-
-                speed=$3,
-
-                heading=$4,
-
-                accuracy=$5,
-
-                updated_at=NOW()
-
-                WHERE bus_id=$6
-                `,
-
-                [
-
-                    latitude,
-
-                    longitude,
-
-                    speed,
-
-                    heading,
-
-                    accuracy,
-
-                    busId
-
-                ]
-
+                    latitude = $1,
+                    longitude = $2,
+                    speed = $3,
+                    heading = $4,
+                    accuracy = $5,
+                    updated_at = NOW()
+                WHERE bus_id = $6
+              `,
+              [
+                  latitude,
+                  longitude,
+                  speed,
+                  heading,
+                  accuracy,
+                  busId
+              ]
             );
 
         }
