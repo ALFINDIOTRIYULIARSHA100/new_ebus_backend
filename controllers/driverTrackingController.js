@@ -147,11 +147,11 @@ exports.getDriverTracking = async (req, res) => {
       speed,
       heading,
       accuracy,
-      updated_at
+      created_at
 
       FROM bus_locations
       WHERE bus_id = $1
-      ORDER BY updated_at DESC
+      ORDER BY created_at DESC
       
       LIMIT 1
       `,
