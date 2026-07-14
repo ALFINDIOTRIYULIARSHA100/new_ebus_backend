@@ -6,7 +6,9 @@ const pool = require("../config/database");
 exports.updateLocation = async (req, res) => {
 
     try {
-
+        console.log("================================");
+        console.log("UPDATE LOCATION");
+        console.log(req.body);
         const {
             driver_id,
             latitude,
