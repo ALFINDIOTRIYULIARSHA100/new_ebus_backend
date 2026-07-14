@@ -434,6 +434,10 @@ exports.updateLocation = async (req,res)=>{
 
     try{
 
+        console.log("==================================");
+        console.log("UPDATE LOCATION DIPANGGIL");
+        console.log(req.body);
+
         const {
 
             driver_id,
@@ -488,6 +492,8 @@ exports.updateLocation = async (req,res)=>{
         const busId=
         busResult.rows[0].id;
 
+        console.log("BUS ID =", busId);
+
         /*
         ==========================
         UPDATE GPS
@@ -531,7 +537,7 @@ exports.updateLocation = async (req,res)=>{
                   busId
               ]
             );
-
+          console.log("UPDATE bus_locations BERHASIL");
         }
 
         else{
@@ -576,14 +582,55 @@ exports.updateLocation = async (req,res)=>{
                 ]
 
             );
-
+          console.log("INSERT bus_locations BERHASIL");
         }
+
+        await pool.query(
+        `
+          UPDATE buses
+          SET
+          latitude=$1,
+          longitude=$2,
+          updated_at=NOW()
+          WHERE id=$3
+        `,
+          [
+            latitude,
+            longitude,
+            busId
+          ]
+        );
+
+        console.log("UPDATE buses BERHASIL");
 
         /*
         ==========================
         HITUNG SEMUA
         ==========================
         */
+       
+        console.log(
+          "UPDATE BERHASIL",
+          latitude,
+          longitude
+        );
+
+        // update tabel buses
+        await pool.query(
+        `
+        UPDATE buses
+        SET
+            latitude = $1,
+            longitude = $2,
+            updated_at = NOW()
+        WHERE id = $3
+        `,
+        [
+            latitude,
+            longitude,
+            busId
+        ]
+        );
 
         await geofenceService.checkBusGeofence(
 
