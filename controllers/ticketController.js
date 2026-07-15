@@ -472,6 +472,8 @@ module.exports = {
 
   updateTicket,
 
-  deleteTicket
+  deleteTicket,
+
+  getTicketByUser
 
 };
