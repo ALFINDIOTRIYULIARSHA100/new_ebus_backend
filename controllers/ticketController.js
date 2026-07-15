@@ -50,6 +50,68 @@ const getTickets = async (req, res) => {
   }
 };
 
+const getTicketByUser = async (req, res) => {
+
+  try {
+
+    const { userId } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT
+
+        t.id,
+        t.ticket_number,
+        t.passenger_name,
+        t.phone,
+        t.seat_number,
+        t.status,
+
+        b.id AS bus_id,
+        b.nomor_bus,
+        b.plat_nomor,
+
+        s.id AS schedule_id
+
+      FROM tickets t
+
+      JOIN buses b
+      ON b.id = t.bus_id
+
+      JOIN schedules s
+      ON s.id = t.schedule_id
+
+      WHERE t.user_id = $1
+
+      ORDER BY t.id DESC
+      `,
+      [userId]
+    );
+
+    res.json({
+
+      success: true,
+
+      data: result.rows
+
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: err.message
+
+    });
+
+  }
+
+};
+
 // ===================================
 // GET TICKET BY ID
 // ===================================
@@ -114,13 +176,12 @@ const createTicket = async (req, res) => {
   try {
 
     const {
-
-      passenger_name,
-      phone,
-      bus_id,
-      schedule_id,
-      seat_number
-
+        user_id,
+        passenger_name,
+        phone,
+        bus_id,
+        schedule_id,
+        seat_number
     } = req.body;
 
     // ==========================
@@ -154,17 +215,13 @@ const createTicket = async (req, res) => {
         INSERT INTO tickets
         (
 
-          ticket_number,
-
-          passenger_name,
-
-          phone,
-
-          bus_id,
-
-          schedule_id,
-
-          seat_number
+            ticket_number,
+            user_id,
+            passenger_name,
+            phone,
+            bus_id,
+            schedule_id,
+            seat_number
 
         )
 
@@ -177,19 +234,13 @@ const createTicket = async (req, res) => {
         `,
 
         [
-
-          ticketNumber,
-
-          passenger_name,
-
-          phone,
-
-          bus_id,
-
-          schedule_id,
-
-          seat_number
-
+            ticketNumber,
+            user_id,
+            passenger_name,
+            phone,
+            bus_id,
+            schedule_id,
+            seat_number
         ]
 
       );

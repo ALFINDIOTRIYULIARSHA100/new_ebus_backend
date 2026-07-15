@@ -8,9 +8,12 @@ const {
     getTicketById,
     createTicket,
     updateTicket,
-    deleteTicket
+    deleteTicket,
+    getTicketByUser
 
 } = require("../controllers/ticketController");
+
+router.get("/user/:userId", getTicketByUser);
 
 router.get("/", getTickets);
 
