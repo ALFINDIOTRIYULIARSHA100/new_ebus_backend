@@ -17,32 +17,33 @@ exports.getPassengerTracking = async (req, res) => {
 
         t.id,
         t.ticket_number,
+        t.passenger_name,
+        t.phone,
+        t.user_id,
 
         t.bus_id,
-
-        p.name AS passenger_name,
 
         b.nomor_bus,
         b.plat_nomor,
         b.status,
         b.is_tracking,
+        b.current_zone,
+        b.current_zone_status,
+        b.progress,
 
         c.company_name
 
-      FROM tickets t
+        FROM tickets t
 
-      JOIN passengers p
-      ON p.id=t.passenger_id
+        JOIN buses b
+        ON b.id=t.bus_id
 
-      JOIN buses b
-      ON b.id=t.bus_id
+        JOIN companies c
+        ON c.id=b.company_id
 
-      JOIN companies c
-      ON c.id=b.company_id
+        WHERE t.ticket_number=$1
 
-      WHERE t.ticket_number=$1
-
-      LIMIT 1
+        LIMIT 1
       `,
       [ticket]
     );
@@ -185,7 +186,9 @@ exports.getPassengerTracking = async (req, res) => {
       data:{
 
         passenger:{
-          nama:data.passenger_name
+            nama:data.passenger_name,
+            phone:data.phone,
+            user_id:data.user_id
         },
 
         ticket:{
@@ -193,22 +196,28 @@ exports.getPassengerTracking = async (req, res) => {
         },
 
         bus:{
-          id:data.bus_id,
-          nomor_bus:data.nomor_bus,
-          plat_nomor:data.plat_nomor,
-          status:data.status,
-          tracking:data.is_tracking
+            id:data.bus_id,
+            nomor_bus:data.nomor_bus,
+            plat_nomor:data.plat_nomor,
+            status:data.status,
+            tracking:data.is_tracking,
+            current_zone:data.current_zone,
+            current_zone_status:data.current_zone_status,
+            progress:data.progress
         },
 
         company:data.company_name,
 
         location:{
-          lat:gps.latitude,
-          lng:gps.longitude,
-          speed:gps.speed,
-          heading:gps.heading,
-          accuracy:gps.accuracy,
-          updated_at:gps.updated_at
+            lat:gps.latitude,
+            lng:gps.longitude,
+            speed:gps.speed,
+            heading:gps.heading,
+            accuracy:gps.accuracy,
+            updated_at:gps.updated_at,
+            current_zone:data.current_zone,
+            current_zone_status:data.current_zone_status,
+            progress:data.progress
         },
 
         route:route==null
