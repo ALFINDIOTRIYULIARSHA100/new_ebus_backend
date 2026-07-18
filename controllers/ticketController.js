@@ -406,62 +406,6 @@ const deleteTicket = async (req, res) => {
 
 };
 
-// ===================================
-// GET TICKET BY USER
-// ===================================
-const getTicketByUser = async (req, res) => {
-
-  try {
-
-    const { userId } = req.params;
-
-    const result = await pool.query(
-      `
-      SELECT
-
-        t.id,
-        t.ticket_number,
-        t.passenger_name,
-        t.phone,
-        t.seat_number,
-        t.status,
-
-        t.bus_id,
-        t.schedule_id,
-
-        b.nomor_bus,
-        b.plat_nomor
-
-      FROM tickets t
-
-      JOIN buses b
-      ON b.id = t.bus_id
-
-      WHERE t.user_id = $1
-
-      ORDER BY t.created_at DESC
-      `,
-      [userId]
-    );
-
-    res.json({
-      success: true,
-      data: result.rows
-    });
-
-  } catch (err) {
-
-    console.log(err);
-
-    res.status(500).json({
-      success: false,
-      message: err.message
-    });
-
-  }
-
-};
-
 module.exports = {
 
   getTickets,
